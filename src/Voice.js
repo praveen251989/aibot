@@ -9,6 +9,7 @@ const Voice = () => {
 	const {globalChatId, socket} = React.useContext(MyContext);
 	var SpeechRecognition = window.speechRecognition || window.webkitSpeechRecognition;
 	var recognition;
+	let isListening = false;
 
     useEffect(() => {
         buttonRef.current.addEventListener('click', handleClick);
