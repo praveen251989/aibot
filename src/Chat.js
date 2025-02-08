@@ -127,10 +127,6 @@ const Chat = ({handleLogin}) => {
     handleMenuClose();
 	}
 
-  function toggleSidebar() {
-    sidebarRef.current.classList.toggle('active');
-  }
-
   function appendMessage(content, sender = 'user') {
     const message = document.createElement('div');
     message.className = `message ${sender}`;
