@@ -549,16 +549,16 @@ header nav a:hover {
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
 }
 
-  .sidebar.active {
+.sidebar.active {
     right: 0;
-  }
+}
 
-  .sidebar .close-btn {
+.sidebar .close-btn {
   text-align: left; /* Align close button to the left */
   padding: 10px;
 }
 
-  .sidebar .close-btn button {
+.sidebar .close-btn button {
   background: none;
   border: none;
   color: white;
@@ -627,19 +627,30 @@ header nav a:hover {
   .newchat-container .message {
     padding: 10px;
     border-radius: 5px;
-    max-width: 70%;
+    /* max-width: 70%; */
     word-wrap: break-word;
   }
 
-  .newchat-container .message.user {
-    background-color: #38bdf8;
+  /* .newchat-container .message.user:first-child {
     align-self: flex-end;
     color: white;
   }
+  .newchat-container .message.user:nth-child(2) {
+    text-align: right;
+    align-self: flex-end;    
+  } */
+  .newchat-container .message.user {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    /* background-color:#38bdf8; */
+  }
 
   .newchat-container .message.bot {
-    background-color: #2d3748;
-    align-self: flex-start;
+    display: flex;
+    flex-direction: column;
+    /* background-color: #2d3748; */
+    align-items: flex-start;
     color: white;
   }
 
@@ -1015,4 +1026,22 @@ text-align: left;
   100% {
       background-position: 0% 50%;
   }
+}
+
+/* HTML: <div class="loader"></div> */
+.loader {
+  width: 30px;
+  aspect-ratio: 4;
+  --_g: no-repeat radial-gradient(circle closest-side,#a39e9e 90%,#0000);
+  background: 
+    var(--_g) 0%   50%,
+    var(--_g) 50%  50%,
+    var(--_g) 100% 50%;
+  background-size: calc(100%/3) 100%;
+  animation: l7 1s infinite linear;
+}
+@keyframes l7 {
+    33%{background-size:calc(100%/3) 0%  ,calc(100%/3) 100%,calc(100%/3) 100%}
+    50%{background-size:calc(100%/3) 100%,calc(100%/3) 0%  ,calc(100%/3) 100%}
+    66%{background-size:calc(100%/3) 100%,calc(100%/3) 100%,calc(100%/3) 0%  }
 }

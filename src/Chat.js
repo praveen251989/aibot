@@ -13,6 +13,7 @@ const Chat = ({handleLogin}) => {
   const divRef = useRef(null);  
   const {globalChatId, setGlobalChatId, socket, loginuser, greet} = React.useContext(MyContext);
   const [messages, setMessages] = useState([{text: greet, sender: "bot"}]);
+  const [disabledInput, setDisabledInput] = useState(false);
   
   var SpeechRecognition = window.speechRecognition || window.webkitSpeechRecognition;
   var recognition;
@@ -34,20 +35,28 @@ const Chat = ({handleLogin}) => {
   };
 
   useEffect(() => {
+    const savedChats = JSON.parse(sessionStorage.getItem("chats")) || [{text: greet, sender: "bot"}];
+    setMessages(savedChats);
     socket.on("bot_response", (data) => {
       const { message, message_data } = data;
       const respMsg = message;
       const messageData = message_data;
+      const time = new Date().toLocaleTimeString('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      });
+      setDisabledInput(false);
       if(messageData['chat_id'] === globalChatId) {
         if (messageData.hasOwnProperty("buttons")) {
           setMessages((prevMessages) => [
             ...prevMessages,
-            { text: respMsg, sender: "bot", buttons: messageData.buttons },
+            { text: respMsg, sender: "bot", buttons: messageData.buttons, time:time },
           ]);
         } else if (messageData.hasOwnProperty("table")) {
           setMessages((prevMessages) => [
             ...prevMessages,
-            { text: respMsg, sender: "bot", table: messageData.table },
+            { text: respMsg, sender: "bot", table: messageData.table, time:time },
           ]);
         } else if (messageData.hasOwnProperty("chart")) {
           const transformedData = messageData.chart.map((item, index) => ({
@@ -57,20 +66,19 @@ const Chat = ({handleLogin}) => {
           }));
           setMessages((prevMessages) => [
             ...prevMessages,
-            { text: "", sender: "bot", chart: transformedData },
+            { text: "", sender: "bot", chart: transformedData, time:time },
           ]);
         } else if (messageData.hasOwnProperty("email")) {
           setMessages((prevMessages) => [
             ...prevMessages,
-            { text: respMsg, sender: "bot", email: messageData.email },
+            { text: respMsg, sender: "bot", email: messageData.email, time:time },
           ]);
         } else {
           setMessages((prevMessages) => [
             ...prevMessages,
-            { text: respMsg, sender: "bot" },
+            { text: respMsg, sender: "bot", time:time },
           ]);
         }
-        //chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
       }
     });
 
@@ -88,6 +96,7 @@ const Chat = ({handleLogin}) => {
   }, []);
 
   useEffect(() => {
+    sessionStorage.setItem("chats", JSON.stringify(messages));
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
@@ -112,43 +121,26 @@ const Chat = ({handleLogin}) => {
     }
   };
 
-  const handleLogout = () => {
-		axios
-			.post("https://dialogiq.net/api/logout", {
-				chat_id: globalChatId,
-				message: "logout",
-			})
-			.then((response) => {
-				if(response && response.status === 200 && response.data.message_data.logged_out_status) {
-					handleLogin(false);
-				}
-			});
-		setGlobalChatId("");
-    handleMenuClose();
-	}
-
-  function appendMessage(content, sender = 'user') {
-    const message = document.createElement('div');
-    message.className = `message ${sender}`;
-    message.textContent = content;
-    chatContainerRef.current.appendChild(message);
-
-    chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-  }
 
   function handleSendMessage() {
     const userInput = inputFieldRef.current.value.trim();
+    const time = new Date().toLocaleTimeString('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
     if (!userInput) return;
     setMessages((prevMessages) => [
       ...prevMessages,
-      { text: userInput, sender: "user" },
+      { text: userInput, sender: "user", time:time },
     ]);
     chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     inputFieldRef.current.value = '';
     socket.emit("send_message_websocket", {
       chat_id: globalChatId,
       message: userInput,
-    });    
+    }); 
+    setDisabledInput(true);
   }
 
   function initSpeechRecognition() {
@@ -205,7 +197,7 @@ const Chat = ({handleLogin}) => {
           button.innerHTML = '<i class="fa fa-microphone"></i>';
           button.classList.remove('recording');
         }
-      }, 30000);
+      }, 5000);
     }
   }
 
@@ -219,97 +211,16 @@ const Chat = ({handleLogin}) => {
   }
 
   return (
-    <div>
-      {/* <header>
-        <div class="logo">
-          <a href="/" class="logo">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-              </svg>
-              Dialog IQ
-          </a>
-        </div>
-        <nav>
-          <a>Home</a>
-          <a>Dashboard</a>
-          <a>Chat</a>
-          <a>Voice</a>
-          <a>FAQ</a>          
-          <IconButton
-                size="small"
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                onClick={handleMenu}
-                color="inherit"
-              >
-                <AccountCircle />
-          </IconButton>
-          <Menu
-            id="basic-menu"
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleMenuClose}
-            MenuListProps={{
-              'aria-labelledby': 'basic-button',
-            }}
-          >
-            <MenuItem onClick={handleMenuClose}>{loginuser}</MenuItem>            
-            <MenuItem onClick={handleLogout}>Logout</MenuItem>
-          </Menu>
-        </nav>
-        <span class="toggle-menu" ref={toggleRef}>☰</span>
-      </header> */}
-      {/* <div class="sidebar" ref={sidebarRef}>
-        <div class="close-btn">
-          <button ref={closebtnRef}>
-            <i class="fa fa-times"></i> Close
-          </button>
-        </div>
-        <ul>
-          <li>
-            <a href="/">
-              <i class="fa fa-home"></i> Home
-            </a>
-          </li>
-          <li>
-            <a href="/dashboard">
-              <i class="fa fa-tachometer"></i> Dashboard
-            </a>
-          </li>
-          <li>
-            <a href="/chat">
-              <i class="fa fa-comments"></i> Chat
-            </a>
-          </li>
-          <li>
-            <a href="/voice">
-              <i class="fa fa-microphone"></i> Voice
-            </a>
-          </li>
-          <li>
-            <a href="/faq">
-              <i class="fa fa-question-circle"></i> FAQ
-            </a>
-          </li>
-          <li>
-            <a href="/signout">
-              <i class="fa fa-sign-out"></i> Sign Out
-            </a>
-          </li>
-        </ul>
-      </div> */}
-
+    <div>      
       <div class="newchat-container" ref={chatContainerRef}>
       {messages.map((message, index) => (
-					<div
-						key={index}
-						className={`message ${
-							message.sender === "user"
-								? "user"
-								: "bot"
-						}`}
-					>
+        <div key={index}
+          className={`message ${
+          message.sender === "user"
+            ? "user"
+            : "bot"
+        }`}>
+					<div style={{backgroundColor: message.sender === "user" ? '#38bdf8' : '#2d3748', padding:'10px',borderRadius:'5px'}}>
 						{message.text}
 						{message.buttons && (
 							<div className='cards-container'>
@@ -384,13 +295,17 @@ const Chat = ({handleLogin}) => {
                 </div>
               </div>
             )}
-					</div>
+					</div> 
+          <div style={{fontSize:'11px',color:'lightgray',padding:'0 5px'}}>
+            {message.time}
+          </div>
+          </div>      
 				))}
-        <div ref={chatEndRef} />
+        <div ref={chatEndRef} className={disabledInput ? "loader" : ''}/>
       </div>
 
       <div class="input-area">
-        <input type="text" placeholder="Type a message..." ref={inputFieldRef}/>
+        <input type="text" placeholder="Type a message..." ref={inputFieldRef} disabled={disabledInput}/>
         <button class="voice-btn" ref={voiceButtonRef}>
           <i class="fa fa-microphone"></i>
         </button>

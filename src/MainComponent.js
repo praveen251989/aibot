@@ -63,7 +63,8 @@ export default function MainComponent({ handleLogin }) {
 				}
 			});
 		setGlobalChatId("");
-    handleMenuClose();
+    	handleMenuClose();
+		sessionStorage.removeItem("chats");
 	}
 
 	return (

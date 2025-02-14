@@ -13,6 +13,14 @@ const Voice = () => {
 
     useEffect(() => {
         buttonRef.current.addEventListener('click', handleClick);
+
+		socket.on("voice_response", (data) => {
+			const { message, chat_id } = data;
+			if(chat_id === globalChatId) {
+				const utterance = new SpeechSynthesisUtterance(message);
+				speechSynthesis.speak(utterance);
+			}
+		});
     }, []);
 
     function handleClick() {
@@ -41,7 +49,7 @@ const Voice = () => {
 			.join('');
 			//inputFieldRef.current.value = transcript;
 			socket.emit("send_message_websocket", {
-				chat_id: globalChatId,
+				chat_id: "voice_" + globalChatId,
 				message: transcript,
 			});
 		};
