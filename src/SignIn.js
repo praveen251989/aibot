@@ -65,23 +65,22 @@ export default function SignIn(props) {
     setEmail(email);
     setPassword(password);
 
-    // axios.post("https://dialogiq.net/api/login", {
-    //   "chat_id":gchatid,
-    //   "email":email, 
-    //   "password":password
-    // }).then((response) => {
-    //   if(response && response.status === 200) {
-    //     if(response.data.message_data.login_status) {
-    //       setLoginuser(response.data.message_data.first_name + "(" + response.data.message_data.role_name + ")");
-    //       setRolename(response.data.message_data.role_name);   
-    //       setGreet(response.data.message) ;      
-    //       onLoginSucces(true);
-    //     } else {
-    //       alert('Invalid user or password');
-    //     }
-    //   }
-    // });
-    onLoginSucces(true);
+    axios.post("https://dialogiq.net/api/login", {
+      "chat_id":gchatid,
+      "email":email, 
+      "password":password
+    }).then((response) => {
+      if(response && response.status === 200) {
+        if(response.data.message_data.login_status) {
+          setLoginuser(response.data.message_data.first_name + "(" + response.data.message_data.role_name + ")");
+          setRolename(response.data.message_data.role_name);   
+          setGreet(response.data.message) ;      
+          onLoginSucces(true);
+        } else {
+          alert('Invalid user or password');
+        }
+      }
+    });
   };
 
   const validateInputs = () => {
