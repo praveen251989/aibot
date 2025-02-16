@@ -6,6 +6,10 @@ import './css/font-awesome.min.css';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import IconButton from '@mui/material/IconButton';
 import ReactMarkdown from "react-markdown";
+import DataTable from 'datatables.net-react';
+import DT from 'datatables.net-dt';
+
+DataTable.use(DT);
 
 const Chat = () => {
   const chatEndRef = useRef(null);
@@ -54,9 +58,25 @@ const Chat = () => {
             { text: respMsg, sender: "bot", buttons: messageData.buttons, time:time },
           ]);
         } else if (messageData.hasOwnProperty("table")) {
+          const tableData = messageData.table;
+          const headings = messageData.table[0];
+          const tableDataWithoutHeadings = tableData.slice(1);
+          const columnsJson = (tableData) => {
+            if (tableData.length === 0) return [];          
+            const keys = Object.keys(tableData[0]);         
+            return keys.map((key) => {
+              let transformedItem = {};
+              transformedItem["data"] = key; 
+              return transformedItem;
+            });
+          };
+          const tableDataWithIds = tableDataWithoutHeadings.map((item, index) => ({
+            id: index + 1,
+            ...item
+          }));
           setMessages((prevMessages) => [
             ...prevMessages,
-            { text: respMsg, sender: "bot", table: messageData.table, time:time },
+            { text: respMsg, sender: "bot", table: tableDataWithIds, columns:columnsJson, heading: headings, time:time },
           ]);
         } else if (messageData.hasOwnProperty("markdown")) {
           setMessages((prevMessages) => [
@@ -110,6 +130,13 @@ const Chat = () => {
   const handleButtonAction = (ele, action) => {
     ele.target.style.backgroundColor='grey';
     ele.target.disabled = true;
+    const parentDiv = ele.target.parentElement;
+    if (parentDiv) {
+      const buttons = parentDiv.querySelectorAll("button");
+      buttons.forEach((btn) => {
+          btn.style.pointerEvents = "none"; 
+      });
+    }
     socket.emit("send_message_websocket", {
       chat_id: globalChatId,
       message: action,
@@ -127,7 +154,6 @@ const Chat = () => {
       });
     }
   };
-
 
   function handleSendMessage() {
     const userInput = inputFieldRef.current.value.trim();
@@ -240,10 +266,21 @@ const Chat = () => {
 						{message.table && (
 							<div>
 								<br/>
-								<table>
+                <DataTable data={message.table} columns={message.columns}>
+                  <thead>
+                    <tr>
+                      {Object.keys(message.heading).map((col) => (
+												<th key={col} >
+													{col.toUpperCase().replace(/_/g, " ")}
+												</th>
+											))}
+                    </tr>
+                  </thead>
+                </DataTable>
+								{/* <table>
 									<thead>
 										<tr>
-											{Object.keys(message.table[0]).map((col) => (
+											{Object.keys(message.heading).map((col) => (
 												<th key={col} >
 													{col.toUpperCase().replace(/_/g, " ")}
 												</th>
@@ -259,11 +296,11 @@ const Chat = () => {
 											))}
 										</tr>
 									))} 
-								</table>
+								</table> */}
 							</div>
 						)}
             {message.markdown && (
-              <div>
+              <div style={{marginLeft:'20px', padding: '20px'}}>
                 <ReactMarkdown>{message.markdown}</ReactMarkdown>
               </div>
             )}
@@ -308,7 +345,7 @@ const Chat = () => {
               </div>
             )}
 					</div> 
-          <div style={{fontSize:'11px',color:'lightgray',padding:'0 5px'}}>
+          <div style={{fontSize:'11px',color:'lightgray',padding:'0 5px',alignSelf:'flex-end'}}>
             {message.time}
           </div>
           </div>      

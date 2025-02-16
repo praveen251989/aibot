@@ -631,14 +631,6 @@ header nav a:hover {
     word-wrap: break-word;
   }
 
-  /* .newchat-container .message.user:first-child {
-    align-self: flex-end;
-    color: white;
-  }
-  .newchat-container .message.user:nth-child(2) {
-    text-align: right;
-    align-self: flex-end;    
-  } */
   .newchat-container .message.user {
     display: flex;
     flex-direction: column;
@@ -649,9 +641,9 @@ header nav a:hover {
   .newchat-container .message.bot {
     display: flex;
     flex-direction: column;
-    /* background-color: #2d3748; */
     align-items: flex-start;
     color: white;
+    width: fit-content;
   }
 
   .newchat-container .message .timestamp {
