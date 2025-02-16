@@ -59,12 +59,12 @@ const Dashboard = () => {
                     <Typography component="span">{task.task_name}</Typography>
                   </AccordionSummary>
                   <AccordionDetails sx={{textAlign:'left', paddingLeft: '40px'}}>
-                    <div style={{marginBottom: '10px'}}>Assigned By:{task.assigned_by}</div>
-                    <div style={{marginBottom: '10px'}}>Assigned To:{task.assigned_to}</div>
-                    <div style={{marginBottom: '10px'}}>Deadline:{task.deadline}</div>
-                    <div style={{marginBottom: '10px'}}>Priority:{task.priority}</div>
-                    <div style={{marginBottom: '10px'}}>Status:{task.status}</div>
-                    <div>Task Description:{task.task_description}</div>            
+                    <div className="task-row"><span className="task-label">Assigned By :</span> <span>{task.assignedBy}</span></div>
+                    <div className="task-row"><span className="task-label">Assigned To :</span> <span>{task.assignedTo}</span></div>
+                    <div className="task-row"><span className="task-label">Deadline :</span> <span>{task.deadline}</span></div>
+                    <div className="task-row"><span className="task-label">Priority :</span> <span>{task.priority}</span></div>
+                    <div className="task-row"><span className="task-label">Status :</span> <span>{task.status}</span></div>
+                    <div className="task-row"><span className="task-label">Task Description :</span> <span>{task.task_description}</span></div>          
                   </AccordionDetails>
                 </Accordion>
               ))}
@@ -87,12 +87,12 @@ const Dashboard = () => {
                     <Typography component="span">{task.task_name}</Typography>
                   </AccordionSummary>
                   <AccordionDetails sx={{textAlign:'left', paddingLeft: '40px'}}>
-                    <div style={{marginBottom: '10px'}}>Assigned By:{task.assigned_by}</div>
-                    <div style={{marginBottom: '10px'}}>Assigned To:{task.assigned_to}</div>
-                    <div style={{marginBottom: '10px'}}>Deadline:{task.deadline}</div>
-                    <div style={{marginBottom: '10px'}}>Priority:{task.priority}</div>
-                    <div style={{marginBottom: '10px'}}>Status:{task.status}</div>
-                    <div>Task Description:{task.task_description}</div>            
+                    <div className="task-row"><span className="task-label">Assigned By :</span> <span>{task.assignedBy}</span></div>
+                    <div className="task-row"><span className="task-label">Assigned To :</span> <span>{task.assignedTo}</span></div>
+                    <div className="task-row"><span className="task-label">Deadline :</span> <span>{task.deadline}</span></div>
+                    <div className="task-row"><span className="task-label">Priority :</span> <span>{task.priority}</span></div>
+                    <div className="task-row"><span className="task-label">Status :</span> <span>{task.status}</span></div>
+                    <div className="task-row"><span className="task-label">Task Description :</span> <span>{task.task_description}</span></div>             
                   </AccordionDetails>
                 </Accordion>
               ))}

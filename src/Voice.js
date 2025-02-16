@@ -78,15 +78,13 @@ const Voice = () => {
 			recognition.start();
 			isListening = true;
 
-		// Automatically stop listening after 30 seconds
-		//   setTimeout(() => {
-		// 	if (isListening) {
-		// 	  recognition.stop();
-		// 	  isListening = false;
-		// 	  button.innerHTML = '<i class="fa fa-microphone"></i>';
-		// 	  button.classList.remove('recording');
-		// 	}
-		//   }, 30000);
+			//Automatically stop listening after 30 seconds
+			setTimeout(() => {
+				if (isListening) {
+					recognition.stop();
+					isListening = false;
+				}
+			}, 5000);
 		}
 	}
 

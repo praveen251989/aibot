@@ -3,12 +3,11 @@ import { Button } from "@mui/material";
 import { MyContext } from "./ContextStore";
 import { PieChart } from "@mui/x-charts/PieChart";
 import './css/font-awesome.min.css'; 
-import axios from 'axios';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import IconButton from '@mui/material/IconButton';
+import ReactMarkdown from "react-markdown";
 
-
-const Chat = ({handleLogin}) => {
+const Chat = () => {
   const chatEndRef = useRef(null);
   const divRef = useRef(null);  
   const {globalChatId, setGlobalChatId, socket, loginuser, greet} = React.useContext(MyContext);
@@ -27,12 +26,13 @@ const Chat = ({handleLogin}) => {
   const sidebarRef = useRef(null);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
-  const handleMenu = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
+
+  // const handleMenu = (event) => {
+  //   setAnchorEl(event.currentTarget);
+  // };
+  // const handleMenuClose = () => {
+  //   setAnchorEl(null);
+  // };
 
   useEffect(() => {
     const savedChats = JSON.parse(sessionStorage.getItem("chats")) || [{text: greet, sender: "bot"}];
@@ -57,6 +57,11 @@ const Chat = ({handleLogin}) => {
           setMessages((prevMessages) => [
             ...prevMessages,
             { text: respMsg, sender: "bot", table: messageData.table, time:time },
+          ]);
+        } else if (messageData.hasOwnProperty("markdown")) {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            { text: respMsg, sender: "bot", markdown: messageData.markdown, time:time },
           ]);
         } else if (messageData.hasOwnProperty("chart")) {
           const transformedData = messageData.chart.map((item, index) => ({
@@ -104,10 +109,12 @@ const Chat = ({handleLogin}) => {
 
   const handleButtonAction = (ele, action) => {
     ele.target.style.backgroundColor='grey';
+    ele.target.disabled = true;
     socket.emit("send_message_websocket", {
       chat_id: globalChatId,
       message: action,
     });
+    setDisabledInput(true);
   };
 
   const copyToClipboard = () => {
@@ -197,7 +204,7 @@ const Chat = ({handleLogin}) => {
           button.innerHTML = '<i class="fa fa-microphone"></i>';
           button.classList.remove('recording');
         }
-      }, 5000);
+      }, 30000);
     }
   }
 
@@ -255,6 +262,11 @@ const Chat = ({handleLogin}) => {
 								</table>
 							</div>
 						)}
+            {message.markdown && (
+              <div>
+                <ReactMarkdown>{message.markdown}</ReactMarkdown>
+              </div>
+            )}
             {message.chart && (
               <div>
                 <PieChart
