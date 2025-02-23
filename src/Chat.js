@@ -1,15 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Button } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import { MyContext } from "./ContextStore";
 import { PieChart } from "@mui/x-charts/PieChart";
 import './css/font-awesome.min.css'; 
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import IconButton from '@mui/material/IconButton';
 import ReactMarkdown from "react-markdown";
-import DataTable from 'datatables.net-react';
-import DT from 'datatables.net-dt';
-
-DataTable.use(DT);
+import { DataGrid } from '@mui/x-data-grid';
+import Paper from '@mui/material/Paper';
 
 const Chat = () => {
   const chatEndRef = useRef(null);
@@ -30,13 +28,6 @@ const Chat = () => {
   const sidebarRef = useRef(null);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
-
-  // const handleMenu = (event) => {
-  //   setAnchorEl(event.currentTarget);
-  // };
-  // const handleMenuClose = () => {
-  //   setAnchorEl(null);
-  // };
 
   useEffect(() => {
     const savedChats = JSON.parse(sessionStorage.getItem("chats")) || [{text: greet, sender: "bot"}];
@@ -59,24 +50,9 @@ const Chat = () => {
           ]);
         } else if (messageData.hasOwnProperty("table")) {
           const tableData = messageData.table;
-          const headings = messageData.table[0];
-          const tableDataWithoutHeadings = tableData.slice(1);
-          const columnsJson = (tableData) => {
-            if (tableData.length === 0) return [];          
-            const keys = Object.keys(tableData[0]);         
-            return keys.map((key) => {
-              let transformedItem = {};
-              transformedItem["data"] = key; 
-              return transformedItem;
-            });
-          };
-          const tableDataWithIds = tableDataWithoutHeadings.map((item, index) => ({
-            id: index + 1,
-            ...item
-          }));
           setMessages((prevMessages) => [
             ...prevMessages,
-            { text: respMsg, sender: "bot", table: tableDataWithIds, columns:columnsJson, heading: headings, time:time },
+            { text: respMsg, sender: "bot", table: tableData, time:time },
           ]);
         } else if (messageData.hasOwnProperty("markdown")) {
           setMessages((prevMessages) => [
@@ -265,22 +241,11 @@ const Chat = () => {
 						)}
 						{message.table && (
 							<div>
-								<br/>
-                <DataTable data={message.table} columns={message.columns}>
-                  <thead>
-                    <tr>
-                      {Object.keys(message.heading).map((col) => (
-												<th key={col} >
-													{col.toUpperCase().replace(/_/g, " ")}
-												</th>
-											))}
-                    </tr>
-                  </thead>
-                </DataTable>
-								{/* <table>
+								<br/>                
+								<table>
 									<thead>
 										<tr>
-											{Object.keys(message.heading).map((col) => (
+											{Object.keys(message.table[0]).map((col) => (
 												<th key={col} >
 													{col.toUpperCase().replace(/_/g, " ")}
 												</th>
@@ -296,7 +261,7 @@ const Chat = () => {
 											))}
 										</tr>
 									))} 
-								</table> */}
+								</table>
 							</div>
 						)}
             {message.markdown && (
